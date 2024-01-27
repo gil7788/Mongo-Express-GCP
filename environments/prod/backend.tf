@@ -15,7 +15,7 @@
 
 terraform {
   backend "gcs" {
-    bucket = "tfc-cloud-build-tfstate"
+    bucket = "mongo-express-tfstate"
     prefix = "env/prod"
   }
 }
