@@ -3,20 +3,21 @@
 # Terraform Cloud (TFC)
 TERRAFORM_ORGANIZATION_NAME="My-TFC-Tutorial"
 TERRAFORM_ORGANIZATION_ID="org-Qzi2vYQye5iErTKo"
-TFC_PROJECT_NAME="tfc-cloud-build"
-TFC_WORKSPACE_ID="ws-7iS8HBL8YEAGdpSy"
+TFC_WORKSPACE_NAME="Mongo-Express-GCP"
+TFC_WORKSPACE_ID="ws-KNRoQeYM2xCRJxUx"
 
 # Google Cloud Platform (GCP)
-PROJECT_ID="tfc-cloud-build"
+PROJECT_ID="mongo-express-412515"
 GCP_REGION="us-west2"
 GCP_ZONE="us-west2-a"
 
 ## Resources
-GCP_CLOUD_RUN_SERVICE_NAME="my-service"
-GCP_CONTAINER_REGISTRY_REPOSITORY_NAME="quickstart-docker-repo"
+GCP_CLOUD_RUN_SERVICE_NAME="mongo-express-service"
+GCP_CONTAINER_REGISTRY_REPOSITORY_NAME="mongo-express-repo"
 
 # Docker
-DOCKER_IMAGE_NAME="quickstart-image"
+DOCKER_IMAGE_NAME="mongo-express-image"
 
 # GitHub
-GITHUB_REPOSITORY_URL="https://github.com/gil7788/tfc-cloud-build.git"
+GITHUB_REPOSITORY_URL="https://github.com/gil7788/Mongo-Express-GCP.git"
+
