@@ -5,6 +5,7 @@ substitutions:
   _GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: '_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME is not set'
   _DOCKER_IMAGE_NAME: '_DOCKER_IMAGE_NAME is not set'
   _GCP_CLOUD_RUN_SERVICE_NAME: '_GCP_CLOUD_RUN_SERVICE_NAME is not set'
+  _SHORT_SHA: '_SHORT_SHA is not set'
 
 steps:
   # Docker build
@@ -16,14 +17,14 @@ steps:
       - '--build-arg=GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME'
       - '--build-arg=DOCKER_IMAGE_NAME=$_DOCKER_IMAGE_NAME'
       - '-t'
-      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
       - '/app'
 
   # Docker push
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -32,7 +33,7 @@ steps:
       - 'deploy'
       - '$_GCP_CLOUD_RUN_SERVICE_NAME'
       - '--image'
-      - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
       - '--region'
       - '$_GCP_REGION'
       - '--platform'
@@ -40,4 +41,4 @@ steps:
       - '--allow-unauthenticated'
 
 images:
-  - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+  - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'

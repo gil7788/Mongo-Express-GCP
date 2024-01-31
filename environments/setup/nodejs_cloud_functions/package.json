@@ -1,0 +1,9 @@
+{
+  "name": "nodejs_cloud_functions",
+  "version": "1.0.0",
+  "main": "trigger_cloudbuild_deployer.js",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/cloudbuild": "^4.1.1"
+  }
+}
