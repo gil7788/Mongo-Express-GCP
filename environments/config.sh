@@ -9,6 +9,7 @@ TFC_PROD_WORKSPACE_NAME="Mongo-Express-GCP-Production"
 TFC_PROD_WORKSPACE_ID="ws-RP3cJ37AVaRQ9nJm"
 
 # Google Cloud Platform (GCP)
+GCP_PROJECT_NAME="mongo-express"
 PROJECT_ID="mongo-express-412515"
 GCP_REGION="us-west2"
 GCP_ZONE="us-west2-a"
@@ -21,5 +22,14 @@ GCP_CONTAINER_REGISTRY_REPOSITORY_NAME="mongo-express-repo"
 DOCKER_IMAGE_NAME="mongo-express-image"
 
 # GitHub
-GITHUB_REPOSITORY_URL="https://github.com/gil7788/Mongo-Express-GCP.git"
+GITHUB_REPOSITORY_OWNER="gil7788"
+GITHUB_REPOSITORY_NAME="Mongo-Express-GCP"
+GITHUB_REPOSITORY_URL="https://github.com/${GITHUB_REPOSITORY_OWNER}/${GITHUB_REPOSITORY_NAME}"
 
+# Setup
+## Define the Cloud Function name
+FUNCTION_NAME="trigger-cloudbuild-deployer-id"
+MASTER_BRANCH_CLOUD_BUILD_TRIGGER_ID="master-branch-cloudbuild-trigger-id"
+
+# Service Accounts
+SERVICE_ACCOUNT_EMAIL="${GCP_PROJECT_NAME}-service-account@${PROJECT_ID}.iam.gserviceaccount.com"
