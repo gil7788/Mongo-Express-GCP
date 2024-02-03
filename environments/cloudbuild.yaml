@@ -9,10 +9,11 @@ substitutions:
 
 steps:
   # Echo substitutions
-  - name: 'echo substitutions'
+  - name: 'ubuntu'
     entrypoint: 'bash'
     args:
       - '-c'
+      - |
       - 'echo "GCP_REGION: $_GCP_REGION, PROJECT_ID: $_PROJECT_ID, GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: $_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME, DOCKER_IMAGE_NAME: $_DOCKER_IMAGE_NAME, GCP_CLOUD_RUN_SERVICE_NAME: $_GCP_CLOUD_RUN_SERVICE_NAME, SHORT_SHA: $_SHORT_SHA"'
 
   # Echo directory structure
@@ -21,8 +22,7 @@ steps:
     args:
       - '-c'
       - |
-        echo "Printing directory structure:"
-        find . -type d -print | sed -e 's;[^/]*/;|___;g;s;___|; |;g'
+        ls -R
 
 #   # Docker build
 #   - name: 'gcr.io/cloud-builders/docker'
