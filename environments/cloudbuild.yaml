@@ -14,47 +14,50 @@ steps:
     args:
       - '-c'
       - |
-      - 'echo "GCP_REGION: $_GCP_REGION, PROJECT_ID: $_PROJECT_ID, GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: $_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME, DOCKER_IMAGE_NAME: $_DOCKER_IMAGE_NAME, GCP_CLOUD_RUN_SERVICE_NAME: $_GCP_CLOUD_RUN_SERVICE_NAME, SHORT_SHA: $_SHORT_SHA"'
+        echo "GCP_REGION: $_GCP_REGION, PROJECT_ID: $_PROJECT_ID, GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: $_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME, DOCKER_IMAGE_NAME: $_DOCKER_IMAGE_NAME, GCP_CLOUD_RUN_SERVICE_NAME: $_GCP_CLOUD_RUN_SERVICE_NAME, SHORT_SHA: $_SHORT_SHA"
 
-  # Echo directory structure
-  - name: 'ubuntu'
+  # Create Artifact Registry Repository
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: 'Create Artifact Registry Repository'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        ls -R
+        if ! gcloud artifacts repositories describe ${_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME} --location=${_GCP_REGION} --project=${_PROJECT_ID} &>/dev/null; then
+          gcloud artifacts repositories create ${_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME} --repository-format=docker --location=${_GCP_REGION} --description="Docker repository for mongo-express images" --project=${_PROJECT_ID}
+        else
+          echo "Repository ${_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME} already exists in ${_GCP_REGION}"
+        fi
+  
+  # Docker build
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg=GCP_REGION=$_GCP_REGION'
+      - '--build-arg=PROJECT_ID=$_PROJECT_ID'
+      - '--build-arg=GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME'
+      - '--build-arg=DOCKER_IMAGE_NAME=$_DOCKER_IMAGE_NAME'
+      - '-t'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
+      - '.'
 
-#   # Docker build
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args:
-#       - 'build'
-#       - '--build-arg=GCP_REGION=$_GCP_REGION'
-#       - '--build-arg=PROJECT_ID=$_PROJECT_ID'
-#       - '--build-arg=GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME'
-#       - '--build-arg=DOCKER_IMAGE_NAME=$_DOCKER_IMAGE_NAME'
-#       - '-t'
-#       - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
-#       - 'app'
+  # Docker push
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
 
-#   # Docker push
-#   - name: 'gcr.io/cloud-builders/docker'
-#     args:
-#       - 'push'
-#       - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
-
-#   # Deploy to Cloud Run
-#   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-#     args:
-#       - 'run'
-#       - 'deploy'
-#       - '$_GCP_CLOUD_RUN_SERVICE_NAME'
-#       - '--image'
-#       - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
-#       - '--region'
-#       - '$_GCP_REGION'
-#       - '--platform'
-#       - 'managed'
-#       - '--allow-unauthenticated'
-
-# images:
-#   - 'gcr.io/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_GCP_CLOUD_RUN_SERVICE_NAME'
+      - '--image'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
+      - '--region'
+      - '$_GCP_REGION'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
