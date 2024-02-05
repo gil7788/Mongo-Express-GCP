@@ -1,8 +1,12 @@
 #!/bin/bash
 
+# Determine the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+CONFIG_PATH="$SCRIPT_DIR/../config.sh"
+
 echo "Loading environment variables..."
-if [ -f ./environments/config.sh ]; then
-    source ./environments/config.sh
+if [ -f "$CONFIG_PATH" ]; then
+    source "$CONFIG_PATH"
     echo "Environment variables loaded successfully."
 else
     echo "config.sh not found"
@@ -69,7 +73,7 @@ gcloud functions deploy $FUNCTION_NAME \
     --source ./environments/setup/nodejs_cloud_functions \
     --entry-point triggerCloudBuild \
     --region $GCP_REGION
-echo "Cloud Function deployed successfully."
+echo -e "Cloud Function deployed successfully.\n\n"
 
 # The following section is commented out as the function itself handles triggering Cloud Build
 # based on the logic within it and does not require a separate Cloud Build trigger.

@@ -1,7 +1,17 @@
 #!/bin/bash
 
-# Load configuration
-source ./environments/config.sh
+# Determine the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+CONFIG_PATH="$SCRIPT_DIR/../config.sh"
+
+echo "Loading environment variables..."
+if [ -f "$CONFIG_PATH" ]; then
+    source "$CONFIG_PATH"
+    echo "Environment variables loaded successfully."
+else
+    echo "config.sh not found"
+    exit 1
+fi
 
 # Function to create and grant roles to a service account
 create_and_grant() {
@@ -21,6 +31,10 @@ create_and_grant() {
         --role "$role"
 }
 
+# Ensure the Compute Engine API is enabled
+echo "Ensuring Compute Engine API is enabled..."
+gcloud services enable compute.googleapis.com --project "$PROJECT_ID"
+
 # Create Cloud Run service account
 create_and_grant "cloud-run-sa" "Cloud Run Service Account" "roles/run.admin" "$PROJECT_ID"
 
@@ -36,4 +50,4 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
     --member "serviceAccount:$CLOUD_BUILD_SA" \
     --role "roles/iam.serviceAccountUser"
 
-echo "Service accounts and permissions are set up."
+echo -e "Service accounts and permissions are set up.\n\n"
