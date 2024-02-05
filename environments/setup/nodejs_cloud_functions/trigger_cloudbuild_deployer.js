@@ -15,6 +15,7 @@ exports.triggerCloudBuild = async (req, res) => {
     _GCP_CLOUD_RUN_SERVICE_NAME: process.env.GCP_CLOUD_RUN_SERVICE_NAME,
   };
 
+  // [TODO] Add manual github repository mirroring to the cloud source repository, to make sure the source code is updated
   let buildRequest = {
     projectId: projectId,
     build: {

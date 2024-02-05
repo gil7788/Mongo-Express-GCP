@@ -140,6 +140,8 @@ Mirroring your GitHub repository to Cloud Source Repositories facilitates a seam
     - Creates a secret in GCP's Secret Manager to store the CloudBuild webhook's trigger secret.
     - Grants the Cloud Build service account access to the secret.
     - Deploys a Cloud Function that can trigger Cloud Build, passing environment variables to it.
+- [TODO] Enable Compute Engine API - probably by running `environments/create_user_services.sh`
+- [TODO] Enable manual mirroring before triggering cloudbuild webhook (most likely, should be activated from cloudbuild web hook)
 
 ### Step 7: Setup TFC Notification (Webhook) to Trigger CloudBuild Webhook
 
