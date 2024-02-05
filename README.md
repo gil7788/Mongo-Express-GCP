@@ -1,126 +1,70 @@
-# Managing infrastructure as code with Terraform, Cloud Build, and GitOps
+# Google Cloud Platform - Terraform Cloud Scaffold
 
-This is the repo for the [Managing infrastructure as code with Terraform, Cloud Build, and GitOps](https://cloud.google.com/solutions/managing-infrastructure-as-code) tutorial. This tutorial explains how to manage infrastructure as code with Terraform and Cloud Build using the popular GitOps methodology. 
+## Project Tree Structure
 
-## Configuring your **dev** environment
+The structure of this project is designed to support a modular and efficient development workflow, integrating infrastructure management with application development. Below is a description of key directories and their intended purposes:
 
-Just for demostration, this step will:
- 1. Configure an apache2 http server on network '**dev**' and subnet '**dev**-subnet-01'
- 2. Open port 80 on firewall for this http server 
+### `environments/master`
+This directory houses the Terraform configurations specific to the master (or development) environment. It's structured to manage resources that are in a continuous state of iteration, closely aligned with the ongoing development of the application.
 
-```bash
-cd ../environments/dev
-terraform init
-terraform plan
-terraform apply
-terraform destroy
-```
+### `environments/prod`
+Contains Terraform configurations for the production environment. This setup is tailored for stability and reliability, managing the infrastructure that supports the application once it's ready to be released to end users.
 
-## Promoting your environment to **production**
+### `environments/`
+The parent directory for different environment configurations, `environments/` includes shared scripts, configurations (like `cloudbuild.yaml` for CI/CD pipelines), and Terraform modules in a `modules/` subdirectory.
 
-Once you have tested your app (in this example an apache2 http server), you can promote your configuration to prodution. This step will:
- 1. Configure an apache2 http server on network '**prod**' and subnet '**prod**-subnet-01'
- 2. Open port 80 on firewall for this http server 
+### `app`
+The `app` directory holds the application code, Dockerfile, and any scripts needed for building and running the application container. This setup facilitates a consistent development environment and eases the process of containerization and deployment.
 
-```bash
-cd ../prod
-terraform init
-terraform plan
-terraform apply
-terraform destroy
-```
+## Developer Environment Setup
 
-## Setup
-This section explains how to set up `terraform` config in this repository with Google Cloud Platform (GCP).
-### Setup Github
-Create a Github repositroy with the following branches:
-- `master`
-- `prod`
+For a new developer joining the project, the following steps outline how to get started. These steps assume that the repository and workspace have been initially configured by a repository admin.
 
-### Setup GCP
-- Enable Google Cloud API's
-    - `gcloud config set project <GCP-project_id>`
-    - `gcloud services enable cloudbuild.googleapis.com compute.googleapis.com`
-- Create a Cloud Bucket
-    - `CLOUDBUILD_SA="$(gcloud projects describe $PROJECT_ID \
-    --format 'value(projectNumber)')@cloudbuild.gserviceaccount.com"`
+1. **Clone the Project Repository:**
+   Start by cloning the repository to your local machine to access the project files.
+   ```bash
+   git clone <repository-url>
+   cd <project-directory>
+   ```
 
-    - `gcloud projects add-iam-policy-binding $PROJECT_ID \
-    --member serviceAccount:$CLOUDBUILD_SA --role roles/editor`
-    Where $PROJECT_ID is GCP project id.`
-- Connect Cloud Build with Github Repository
-    - Go to the GitHub Marketplace page for the Cloud Build app: [Link](https://github.com/marketplace/google-cloud-build)
+2. **Install Necessary Tools:**
+   Ensure you have Docker, the Google Cloud SDK, and Terraform installed on your machine. These tools are essential for running the application, managing cloud resources, and applying infrastructure changes.
 
-### Cloud Build Setup Instructions
-- 1. Enable Cloud Build and Artifact Registry APIs
+3. **GCP Authentication:**
+   Authenticate with Google Cloud using the `gcloud` CLI to access GCP resources. This step might require you to have access to the Google Cloud project and appropriate permissions.
+   ```bash
+   gcloud auth login
+   gcloud config set project <project-id>
+   ```
 
-Execute the following command to enable necessary services in your GCP project:
+4. **Access Terraform Cloud Workspace:**
+   Make sure you have access to the Terraform Cloud workspace associated with the project. You might need an invitation from the repository admin. Once added, configure your Terraform CLI to work with the Terraform Cloud workspace.
 
-```bash
-gcloud services enable \
-    cloudbuild.googleapis.com \
-    artifactregistry.googleapis.com \
-    --project=<PROJECT-ID>
-```
+5. **Environment Configuration:**
+   Set up any required local environment variables. This may include cloud credentials, application configuration variables, and anything else necessary for development.
 
-- 2. Create a Shell Script (run.sh)
-Create a script named run.sh that will define your build or deployment commands.
+   Given the outlined setup, a developer joining the project would need to configure their environment based on the completed setup steps by the repository admin. This includes:
 
-- 3. Create a Dockerfile
-Prepare a Dockerfile to define the steps for creating your Docker image.
+   - **Google Cloud SDK Configuration:** Ensure the Google Cloud SDK is installed and authenticated against the developer's Google account with access to the GCP project. Use `gcloud auth login` and `gcloud config set project <project-id>` to set up the local environment for GCP access.
 
-- 4. Create a New Docker Repository
-Use this command to create a Docker repository in the Artifact Registry:
-```bash
-gcloud artifacts repositories create quickstart-docker-repo \
-    --repository-format=docker \
-    --location=us-west2 \
-    --description="Docker repository"
-```
+   - **Terraform Cloud Workspace Access:** The developer needs access to the Terraform Cloud workspace that has been linked with the GitHub repository. They may require an invitation from the admin or workspace owner to join this workspace.
 
-- 5. Verify the Repository Creation
-Ensure your repository has been successfully created:
+   - **Environment Variables for Terraform Cloud:** If there are any specific environment variables set up in the Terraform Cloud workspace (e.g., `GOOGLE_CREDENTIALS`), the developer may need to ensure these are also configured or accessible for local development and testing. This might involve setting local environment variables or configuring equivalent settings in their development tools.
 
-```bash
-gcloud artifacts repositories list
-```
+   - **Local Terraform Configuration:** Developers should initialize Terraform locally within the project directory (specifically within the `environments/master` or `environments/prod` directories, depending on their development focus) by running `terraform init`. This step ensures they can run Terraform plans and applies locally for testing.
 
-- 6. Create cloudbuild.yaml
-Prepare your cloudbuild.yaml file with the necessary build steps:
-```yaml
-steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    script: |
-      docker build -t us-west2-docker.pkg.dev/$PROJECT_ID/quickstart-docker-repo/quickstart-image:tag1 .
-    automapSubstitutions: true
-images:
-  - 'us-west2-docker.pkg.dev/<PROJECT-ID>/quickstart-docker-repo/quickstart-image:tag1'
-```
+   - **Access to Service Account Key:** For operations that require GCP access, such as deploying cloud functions or interacting with GCP services, developers will need access to the GCP service account key. They should securely obtain this key from an admin and configure it locally, typically by setting the `GOOGLE_APPLICATION_CREDENTIALS` environment variable to the path of the JSON key file.
 
-- 7. Submit the Build
-Trigger the Cloud Build using the following command:
-```bash
-gcloud builds submit \
-    --region=us-west2 --config \
-    cloudbuild.yaml
-```
-These steps will guide you through setting up a Cloud Build process in GCP, including creating a Docker image and storing it in the Artifact Registry. Remember to replace `<PROJECT-ID>` with your actual GCP project ID.
+   - **GitHub Repository Setup:** Developers need to clone the GitHub repository to their local development machine using `git clone <repository-url>`. They should ensure they have the necessary permissions to push changes to the repository.
 
-- 8. Ensure running user has Cloud Run Admin IAM Permissions
+   - **Cloud Source Repositories (CSR) Mirroring:** If the project uses CSR for mirroring the GitHub repository, developers should verify that this is correctly set up and that they have access to the CSR repository. This might involve coordinating with the admin to ensure proper access rights.
+
+These steps ensure that a new developer has the necessary tools, access, and configurations to start contributing to the project effectively.
 
 
-### GH Repo Mapping
-Creating Cloud Build Trigger...
-ERROR: (gcloud.beta.builds.triggers.create.github) FAILED_PRECONDITION: Repository mapping does not exist. Please visit https://console.cloud.google.com/cloud-build/triggers;region=global/connect?project=137286199491 to connect a repository to your project
-Failed to create Cloud Build Trigger.
+6. **Initialize Terraform:**
+   Navigate to the relevant environment directory within `environments/` and run `terraform init` to prepare Terraform to manage the infrastructure.
 
-### Configure Terraform Files
-- Make sure that project name is set correctly in the following files:
-    -   `environments/dev/backend.tf`
-    -    `environments/dev/terraform.tfvars`
-    -    `environments/prod/backend.tf`
-    -    `environments/prod/terraform.tfvars`
+7. **Running the Application Locally:**
+   Use Docker to build and run the application locally for development and testing. Navigate to the `app/` directory and use the Docker CLI to build the container image and run the application.
 
-
-## References
-Terrafrom managing infrastructure as code: [Link](https://cloud.google.com/docs/terraform/resource-management/managing-infrastructure-as-code)
