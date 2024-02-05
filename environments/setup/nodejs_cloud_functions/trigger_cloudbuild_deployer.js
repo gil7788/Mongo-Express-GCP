@@ -31,7 +31,8 @@ exports.triggerCloudBuild = async (req, res) => {
           args: [
             '-c',
         //     // `gcloud builds submit --config=/environments/cloudbuild.yaml --source=https://source.developers.google.com/p/${projectId}/r/${mirroredRepoName}/+/${branchName}: --substitutions=${Object.keys(substitutions).map(key => `${key}=${substitutions[key]}`).join(',')}`,
-            `gcloud builds submit --config=environments/cloudbuild.yaml --no-source --substitutions=_SHORT_SHA=$(git rev-parse --short HEAD),_GCP_REGION=${substitutions._GCP_REGION},_PROJECT_ID=${substitutions._PROJECT_ID},_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=${substitutions._GCP_CONTAINER_REGISTRY_REPOSITORY_NAME},_DOCKER_IMAGE_NAME=${substitutions._DOCKER_IMAGE_NAME},_GCP_CLOUD_RUN_SERVICE_NAME=${substitutions._GCP_CLOUD_RUN_SERVICE_NAME}`,          ],
+            `gcloud builds submit --config=environments/cloudbuild.yaml --no-source --substitutions=_SHORT_SHA=$(git rev-parse --short HEAD),_GCP_REGION=${substitutions._GCP_REGION},_PROJECT_ID=${substitutions._PROJECT_ID},_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=${substitutions._GCP_CONTAINER_REGISTRY_REPOSITORY_NAME},_DOCKER_IMAGE_NAME=${substitutions._DOCKER_IMAGE_NAME},_GCP_CLOUD_RUN_SERVICE_NAME=${substitutions._GCP_CLOUD_RUN_SERVICE_NAME} ./app`,
+          ],
         },
       ],
     }

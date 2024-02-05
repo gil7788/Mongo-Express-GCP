@@ -1,14 +1,6 @@
 #!/bin/sh
 echo "Hello, world! The time is $(date)."
 
-# Test environment variables
-source ../environments/config.sh
-
-# Iterate through and print all environment variables
-printenv | while read -r line; do
-  echo "$line"
-done
-
 echo "Installing darkhttpd..."
 # Install darkhttpd
 apk add --no-cache darkhttpd
