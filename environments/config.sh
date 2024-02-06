@@ -18,6 +18,8 @@ GCP_ZONE="us-west2-a"
 GITHUB_REPOSITORY_OWNER="gil7788"
 GITHUB_REPOSITORY_NAME="Mongo-Express-GCP"
 GITHUB_REPOSITORY_URL="https://github.com/${GITHUB_REPOSITORY_OWNER}/${GITHUB_REPOSITORY_NAME}"
+MASTER_BRANCH_NAME="master"
+PROD_BRANCH_NAME="prod"
 
 ## Resources
 GCP_MIRRORED_REPOSITORY_NAME=$(echo "github_${GITHUB_REPOSITORY_OWNER}_${GITHUB_REPOSITORY_NAME}" | tr '[:upper:]' '[:lower:]') # Ensure lower case for the mirrored repository name

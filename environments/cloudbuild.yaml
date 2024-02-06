@@ -5,6 +5,7 @@ substitutions:
   _GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: '_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME is not set'
   _DOCKER_IMAGE_NAME: '_DOCKER_IMAGE_NAME is not set'
   _GCP_CLOUD_RUN_SERVICE_NAME: '_GCP_CLOUD_RUN_SERVICE_NAME is not set'
+  _SHORT_SHA: '_SHORT_SHA is not set'
 
 steps:
   # Echo substitutions
@@ -13,7 +14,7 @@ steps:
     args:
       - '-c'
       - |
-        echo "GCP_REGION: $_GCP_REGION, PROJECT_ID: $_PROJECT_ID, GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: $_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME, DOCKER_IMAGE_NAME: $_DOCKER_IMAGE_NAME, GCP_CLOUD_RUN_SERVICE_NAME: $_GCP_CLOUD_RUN_SERVICE_NAME, SHORT_SHA: $SHORT_SHA"
+        echo "GCP_REGION: $_GCP_REGION, PROJECT_ID: $_PROJECT_ID, GCP_CONTAINER_REGISTRY_REPOSITORY_NAME: $_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME, DOCKER_IMAGE_NAME: $_DOCKER_IMAGE_NAME, GCP_CLOUD_RUN_SERVICE_NAME: $_GCP_CLOUD_RUN_SERVICE_NAME, SHORT_SHA: $_SHORT_SHA"
 
   # Create Artifact Registry Repository
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -37,14 +38,14 @@ steps:
       - '--build-arg=GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME'
       - '--build-arg=DOCKER_IMAGE_NAME=$_DOCKER_IMAGE_NAME'
       - '-t'
-      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
       - '.'
 
   # Docker push
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
 
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -54,7 +55,7 @@ steps:
       - 'deploy'
       - '$_GCP_CLOUD_RUN_SERVICE_NAME'
       - '--image'
-      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$SHORT_SHA'
+      - '$_GCP_REGION-docker.pkg.dev/$_PROJECT_ID/$_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME/$_DOCKER_IMAGE_NAME:$_SHORT_SHA'
       - '--region'
       - '$_GCP_REGION'
       - '--platform'
