@@ -33,6 +33,7 @@ check_var "FUNCTION_NAME"
 check_var "GCP_REGION"
 check_var "SERVICE_ACCOUNT_EMAIL"
 check_var "GCP_MIRRORED_REPOSITORY_NAME"
+check_var "MASTER_BRANCH_NAME"
 
 if [ $MISSING_VARS -ne 0 ]; then
     exit 1
@@ -74,12 +75,3 @@ gcloud functions deploy $FUNCTION_NAME \
     --entry-point triggerCloudBuild \
     --region $GCP_REGION
 echo -e "Cloud Function deployed successfully.\n\n"
-
-# The following section is commented out as the function itself handles triggering Cloud Build
-# based on the logic within it and does not require a separate Cloud Build trigger.
-# gcloud beta builds triggers create webhook \
-#     --name="$MASTER_BRANCH_CLOUD_BUILD_TRIGGER_ID" \
-#     --description="Webhook trigger for external invocation" \
-#     --region="$GCP_REGION" \
-#     --secret="$SECRET_URI" || echo "Failed to create Cloud Build Webhook Trigger"
-# echo "Cloud Build Webhook Trigger created successfully."

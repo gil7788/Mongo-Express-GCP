@@ -34,29 +34,17 @@ exports.triggerCloudBuild = async (req, res) => {
           id: 'clone-repo',
         },
         {
-          // Fetching the short SHA of the HEAD commit and writing it to a file
-          name: 'gcr.io/cloud-builders/git',
-          entrypoint: 'bash',
-          args: [
-            '-c',
-            'git rev-parse --short=7 HEAD > _SHORT_SHA.txt'
-          ],
-          id: 'fetch-short-sha',
-          waitFor: ['clone-repo'],
-        },
-        {
           // Submitting a new build request with the short SHA included in the substitutions
           name: 'gcr.io/cloud-builders/gcloud',
           entrypoint: 'bash',
           args: [
             '-c',
             `
-            SHORT_SHA=$(cat _SHORT_SHA.txt) && \
-            gcloud builds submit --config environments/cloudbuild.yaml --substitutions=_GCP_REGION=${substitutions._GCP_REGION},_PROJECT_ID=${substitutions._PROJECT_ID},_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=${substitutions._GCP_CONTAINER_REGISTRY_REPOSITORY_NAME},_DOCKER_IMAGE_NAME=${substitutions._DOCKER_IMAGE_NAME},_GCP_CLOUD_RUN_SERVICE_NAME=${substitutions._GCP_CLOUD_RUN_SERVICE_NAME},_SHORT_SHA=$SHORT_SHA ./app
+            gcloud builds submit --config environments/cloudbuild.yaml --substitutions=_GCP_REGION=${substitutions._GCP_REGION},_PROJECT_ID=${substitutions._PROJECT_ID},_GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=${substitutions._GCP_CONTAINER_REGISTRY_REPOSITORY_NAME},_DOCKER_IMAGE_NAME=${substitutions._DOCKER_IMAGE_NAME},_GCP_CLOUD_RUN_SERVICE_NAME=${substitutions._GCP_CLOUD_RUN_SERVICE_NAME},_SHORT_SHA=latest ./app
             `,
           ],
           id: 'submit-build',
-          waitFor: ['fetch-short-sha'],
+          waitFor: ['clone-repo'],
         }
       ],
     }
