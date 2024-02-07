@@ -33,6 +33,7 @@ check_var "FUNCTION_NAME"
 check_var "GCP_REGION"
 check_var "SERVICE_ACCOUNT_EMAIL"
 check_var "GCP_MIRRORED_REPOSITORY_NAME"
+check_var "MASTER_BRANCH_NAME"
 
 if [ $MISSING_VARS -ne 0 ]; then
     exit 1
@@ -48,21 +49,21 @@ SECRET_VALUE=$(openssl rand -base64 32)
 echo "Secret Name: $SECRET_NAME"
 echo "Secret Value: [HIDDEN]"
 
-# Create the secret in Secret Manager
-echo "Creating secret in Secret Manager..."
-gcloud secrets create $SECRET_NAME --replication-policy="automatic"
-echo "Secret created successfully."
+# # Create the secret in Secret Manager
+# echo "Creating secret in Secret Manager..."
+# gcloud secrets create $SECRET_NAME --replication-policy="automatic"
+# echo "Secret created successfully."
 
-# Add the secret version
-echo "Adding secret version..."
-echo -n $SECRET_VALUE | gcloud secrets versions add $SECRET_NAME --data-file=-
-echo "Secret version added successfully."
+# # Add the secret version
+# echo "Adding secret version..."
+# echo -n $SECRET_VALUE | gcloud secrets versions add $SECRET_NAME --data-file=-
+# echo "Secret version added successfully."
 
-# Grant the Cloud Build service account access to the secret
-CLOUDBUILD_SA="service-${PROJECT_NUMBER}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-echo "Granting Cloud Build service account access to the secret..."
-gcloud secrets add-iam-policy-binding $SECRET_NAME --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/secretmanager.secretAccessor"
-echo "Access granted successfully."
+# # Grant the Cloud Build service account access to the secret
+# CLOUDBUILD_SA="service-${PROJECT_NUMBER}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
+# echo "Granting Cloud Build service account access to the secret..."
+# gcloud secrets add-iam-policy-binding $SECRET_NAME --member="serviceAccount:${CLOUDBUILD_SA}" --role="roles/secretmanager.secretAccessor"
+# echo "Access granted successfully."
 
 echo "Deploying Cloud Function $FUNCTION_NAME..."
 gcloud functions deploy $FUNCTION_NAME \
@@ -74,12 +75,3 @@ gcloud functions deploy $FUNCTION_NAME \
     --entry-point triggerCloudBuild \
     --region $GCP_REGION
 echo -e "Cloud Function deployed successfully.\n\n"
-
-# The following section is commented out as the function itself handles triggering Cloud Build
-# based on the logic within it and does not require a separate Cloud Build trigger.
-# gcloud beta builds triggers create webhook \
-#     --name="$MASTER_BRANCH_CLOUD_BUILD_TRIGGER_ID" \
-#     --description="Webhook trigger for external invocation" \
-#     --region="$GCP_REGION" \
-#     --secret="$SECRET_URI" || echo "Failed to create Cloud Build Webhook Trigger"
-# echo "Cloud Build Webhook Trigger created successfully."
