@@ -71,7 +71,7 @@ gcloud functions deploy $FUNCTION_NAME \
     --trigger-http \
     --allow-unauthenticated \
     --set-env-vars BRANCH_NAME=$MASTER_BRANCH_NAME,PROJECT_ID=$PROJECT_ID,GCP_REGION=$GCP_REGION,GCP_CLOUD_RUN_SERVICE_NAME=$GCP_CLOUD_RUN_SERVICE_NAME,GCP_CONTAINER_REGISTRY_REPOSITORY_NAME=$GCP_CONTAINER_REGISTRY_REPOSITORY_NAME,DOCKER_IMAGE_NAME=$DOCKER_IMAGE_NAME,GITHUB_REPOSITORY_OWNER=$GITHUB_REPOSITORY_OWNER,GITHUB_REPOSITORY_NAME=$GITHUB_REPOSITORY_NAME,GCP_MIRRORED_REPOSITORY_NAME=$GCP_MIRRORED_REPOSITORY_NAME \
-    --source ./environments/setup/nodejs_cloud_functions \
+    --source ./environments/setup/cloudbuild_trigger \
     --entry-point triggerCloudBuild \
     --region $GCP_REGION
 echo -e "Cloud Function deployed successfully.\n\n"

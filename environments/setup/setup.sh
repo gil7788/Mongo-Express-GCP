@@ -6,7 +6,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 
 # Make deploy_function.sh executable and run it
-chmod +x "$SCRIPT_DIR/deploy_functions.sh"
+chmod +x "$SCRIPT_DIR/deploy_cloudbuild_trigger.sh"
 "$SCRIPT_DIR/deploy_functions.sh"
 
 # Make create_user_services.sh executable and run it
